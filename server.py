@@ -43,8 +43,10 @@ def uploader_callback():
                         remove_background=ocrmypdf_remove_background, 
                         optimize=ocrmypdf_optimize,
                         deskew=ocrmypdf_deskew,
-                        tesseract_timeout=400 if ocrmypdf_ocr else 0, 
-                        skip_text=True, 
+                        tesseract_timeout=400 if ocrmypdf_ocr else 0,
+                        force_ocr=True,
+			rotate_pages=True,
+                        rotate_pages_threshold=5.0,
                         max_image_mpixels=901167396
                     )
 

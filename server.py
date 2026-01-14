@@ -18,8 +18,7 @@ STATE_FIXED_PDF_PATH="fixed_pdf_path"
 STATE_UPLOADED_FILE="uploaded_file"
 STATE_UPLOADED_FILE_NAME="uploaded_file_name"
 
-ocrmypdf_ocr=False
-ocrmypdf_remove_background=False
+ocrmypdf_ocr=True
 ocrmypdf_deskew=False
 ocrmypdf_optimize=1
 
@@ -40,7 +39,6 @@ def uploader_callback():
                     fixed_path=path + '_fixed.pdf'
 
                     ocrmypdf.ocr(path, fixed_path, 
-                        remove_background=ocrmypdf_remove_background, 
                         optimize=ocrmypdf_optimize,
                         deskew=ocrmypdf_deskew,
                         tesseract_timeout=400 if ocrmypdf_ocr else 0,
@@ -63,19 +61,18 @@ c1 = st.container()
 c1.title("OCRmyPDFonWEB")
 
 if STATE_FIXED_PDF_PATH not in st.session_state:
-    c1.write("Select options and upload PDF. Once this process is successfully completed, the edited PDF file will be available for download.")
-    ocrmypdf_ocr = c1.checkbox('Optical character recognition (OCR)')
-    ocrmypdf_remove_background = c1.checkbox('Remove background')
-    ocrmypdf_deskew = c1.checkbox('Deskew')
+    c1.write("Выберите параметры и загрузите PDF-файл. После успешного завершения этого процесса отредактированный PDF-файл будет доступен для скачивания.")
+    ocrmypdf_ocr = c1.checkbox('Распознать текст', value=True)
+    ocrmypdf_deskew = c1.checkbox('Выровнять перекосы', value=True)
     ocrmypdf_optimize = c1.slider(
         label = "Optimize file size (0 off, 1 without quality loss, 3 smallest but maybe with slight quality loss)",
         min_value = 0,
         max_value = 3,
-        value = 1
+        value = 0
     )
     c1.file_uploader(label="Upload PDF", on_change=uploader_callback, key=STATE_UPLOADED_FILE)
 else:
-    c1.write("Editing of the PDF file has been successfully completed. Now the optimized version is ready for download.")
+    c1.write("Редактирование PDF-файла успешно завершено. Теперь оптимизированная версия готова к загрузке.")
     try:
         with open(st.session_state[STATE_FIXED_PDF_PATH], 'rb') as f:
             st.download_button(label = 'Download PDF', data = f, file_name=st.session_state[STATE_UPLOADED_FILE_NAME], on_click = download_callback)

@@ -21,6 +21,7 @@ STATE_UPLOADED_FILE_NAME="uploaded_file_name"
 ocrmypdf_ocr=True
 ocrmypdf_deskew=False
 ocrmypdf_optimize=1
+ocrmypdf_languages=[]
 
 st.set_page_config(page_title='OCRmyPDFonWEB')
 
@@ -38,7 +39,11 @@ def uploader_callback():
 
                     fixed_path=path + '_fixed.pdf'
 
+                    # Формируем строку языков для OCRmyPDF (например: 'deu+eng+rus')
+                    lang_string = '+'.join(st.session_state['selected_languages']) if st.session_state['selected_languages'] else 'eng'
+
                     ocrmypdf.ocr(path, fixed_path, 
+                        language=lang_string,
                         optimize=ocrmypdf_optimize,
                         deskew=ocrmypdf_deskew,
                         tesseract_timeout=400 if ocrmypdf_ocr else 0,
@@ -64,6 +69,45 @@ if STATE_FIXED_PDF_PATH not in st.session_state:
     c1.write("Выберите параметры и загрузите PDF-файл. После успешного завершения этого процесса отредактированный PDF-файл будет доступен для скачивания.")
     ocrmypdf_ocr = c1.checkbox('Распознать текст', value=True)
     ocrmypdf_deskew = c1.checkbox('Выровнять перекосы', value=True)
+
+    # ВЫБОР ЯЗЫКОВ
+    c1.write("Язык документа(-ов):")
+    languages = {
+        'German (Deutsch)': 'deu',
+        'English': 'eng',
+        'French (Français)': 'fra',
+        'Spanish (Español)': 'spa',
+        'Italian (Italiano)': 'ita',
+        'Russian (Русский)': 'rus',
+        'Polish (Polski)': 'pol',
+        'Dutch (Nederlands)': 'nld'
+    }
+    
+    selected_langs = []
+    col1, col2 = c1.columns(2)
+    
+    with col1:
+        if st.checkbox('German (Deutsch)', value=True, key='lang_deu'):
+            selected_langs.append('deu')
+        if st.checkbox('English', value=True, key='lang_eng'):
+            selected_langs.append('eng')
+        if st.checkbox('French (Français)', key='lang_fra'):
+            selected_langs.append('fra')
+        if st.checkbox('Spanish (Español)', key='lang_spa'):
+            selected_langs.append('spa')
+    
+    with col2:
+        if st.checkbox('Italian (Italiano)', key='lang_ita'):
+            selected_langs.append('ita')
+        if st.checkbox('Russian (Русский)', key='lang_rus'):
+            selected_langs.append('rus')
+        if st.checkbox('Polish (Polski)', key='lang_pol'):
+            selected_langs.append('pol')
+        if st.checkbox('Dutch (Nederlands)', key='lang_nld'):
+            selected_langs.append('nld')
+    
+    st.session_state['selected_languages'] = selected_langs
+
     ocrmypdf_optimize = c1.slider(
         label = "Optimize file size (0 off, 1 without quality loss, 3 smallest but maybe with slight quality loss)",
         min_value = 0,
